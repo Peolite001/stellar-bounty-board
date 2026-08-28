@@ -8,8 +8,8 @@ title = "Stellar Bounty Board gitleaks config"
 description = "Global allow list for tests, docs, and placeholders"
 regexes = ['''your_github_webhook_secret_here|example|EXAMPLE|dummy''']
 paths = [
-  "test/**", 
-  "docs/**", 
-  "**/*.md", 
-  "backend/worker/**"
+  '''test/.*''', 
+  '''docs/.*''', 
+  '''.*\.md''', 
+  '''backend/worker/.*'''
 ]
