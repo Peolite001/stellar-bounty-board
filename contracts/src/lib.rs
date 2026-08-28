@@ -170,9 +170,6 @@ pub struct ContractUnpaused {
     pub admin: Address,
 }
 
-#[contracttype]
-
-}
 
 #[contract]
 pub struct StellarBountyBoardContract;
