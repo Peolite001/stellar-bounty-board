@@ -184,8 +184,6 @@ impl StellarBountyBoardContract {
         String::from_str(&_env, CONTRACT_VERSION)
     }
 
-    pub fn initialize(env: Env, fee_recipient: Address, arbiter: Address, dispute_window: u64) {
-    
     pub fn initialize(env: Env, admin: Address, fee_recipient: Address, arbiter: Address, dispute_window: u64) {
         // Prevent re-initialization
         if env.storage().persistent().has(&DataKey::FeeRecipient) {
