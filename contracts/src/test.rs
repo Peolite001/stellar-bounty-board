@@ -1,3 +1,6 @@
+#![allow(deprecated)]
+#![allow(unused_imports)]
+#![allow(unused_variables)]
 #![cfg(test)]
 
 extern crate alloc;

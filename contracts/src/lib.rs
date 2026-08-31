@@ -1,3 +1,6 @@
+#![allow(deprecated)]
+#![allow(unused_imports)]
+
 #![no_std]
 
 #[cfg(test)]
@@ -59,6 +62,8 @@ pub struct AllowlistConfig {
     pub enabled: bool,
     pub allowed_tokens: Vec<Address>,
 }
+
+pub const MAX_BOUNTY_AMOUNT: i128 = 1_000_000_000_000_000;
 
 /// Cumulative fee statistics updated on every payout release.
 #[contracttype]
@@ -221,8 +226,8 @@ pub struct DisputeAppealed {
 #[contracttype]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ArbiterRotationProposed {
-    pub pending_arbiter: Address,
-    pub execute_after: u64,
+    pub new_arbiter: Address,
+    pub unlock_time: u64,
 }
 
 #[contracttype]
