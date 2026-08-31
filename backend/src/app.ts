@@ -42,6 +42,7 @@ import {
   extendDeadlineSchema,
   resolveDisputeBountySchema,
   maintainerActionSchema,
+  bulkActionSchema,
   reserveBountySchema,
   submitBountySchema,
   updateNotesSchema,
@@ -645,6 +646,72 @@ app.post(
     } catch (error) {
       sendError(res, req, error);
     }
+  }
+);
+
+/**
+ * POST /api/bounties/bulk-action  (#829)
+ *
+ * Admin-only endpoint that applies a single maintainer transition
+ * (`release` or `refund`) to a list of bounty IDs in one request.
+ *
+ * Each bounty is processed independently: a failure on one item (unknown ID,
+ * wrong maintainer, already finalized, invalid status, ...) is recorded per
+ * item and does NOT abort the remaining items. The response always contains a
+ * per-item `results` array so callers can surface partial success/failure.
+ *
+ * Requires the admin API key (`x-admin-api-key` header) just like the
+ * audit-log endpoint; the admin key replaces the per-item Stellar signature
+ * required by the single-bounty endpoints.
+ */
+app.post(
+  '/api/bounties/bulk-action',
+  mutationLimiter,
+  requireJsonContentType,
+  createAdminApiKeyAuthMiddleware(),
+  validateBody(bulkActionSchema),
+  async (req: Request, res: Response) => {
+    const { action, bountyIds, maintainer, transactionHash } = req.body as {
+      action: 'release' | 'refund';
+      bountyIds: string[];
+      maintainer: string;
+      transactionHash?: string;
+    };
+
+    const results: Array<{
+      bountyId: string;
+      success: boolean;
+      status?: string;
+      error?: string;
+    }> = [];
+
+    for (const bountyId of bountyIds) {
+      try {
+        const bounty =
+          action === 'release'
+            ? await releaseBounty(bountyId, maintainer, transactionHash)
+            : await refundBounty(bountyId, maintainer, transactionHash);
+
+        results.push({ bountyId, success: true, status: bounty.status });
+      } catch (error) {
+        results.push({
+          bountyId,
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error.',
+        });
+      }
+    }
+
+    const succeeded = results.filter((result) => result.success).length;
+
+    res.json({
+      data: {
+        action,
+        results,
+        succeeded,
+        failed: results.length - succeeded,
+      },
+    });
   }
 );
 
