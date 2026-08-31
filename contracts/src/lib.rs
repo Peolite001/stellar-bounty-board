@@ -1,5 +1,6 @@
 #![allow(deprecated)]
 #![allow(unused_imports)]
+#![allow(clippy::too_many_arguments)]
 
 #![no_std]
 
