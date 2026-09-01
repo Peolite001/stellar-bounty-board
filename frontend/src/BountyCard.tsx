@@ -80,6 +80,15 @@ export interface BountyCardProps {
       title: string;
     }
   ) => ReactNode;
+  /**
+   * Optional multi-select control (#829). When provided, a checkbox is
+   * rendered on the card so the maintainer can select several bounties and
+   * run a bulk release/refund from the toolbar.
+   */
+  selection?: {
+    selected: boolean;
+    onToggle: () => void;
+  };
 }
 
 /** Truncate a Stellar public key to a short display form. */
@@ -115,6 +124,7 @@ const BountyCard = memo(function BountyCard({
   bounty,
   onOpen,
   renderActionButton,
+  selection,
 }: BountyCardProps) {
   const openCard = () => onOpen(bounty.id);
 
@@ -137,6 +147,19 @@ const BountyCard = memo(function BountyCard({
     >
       <div className="bounty-card__top">
         <div>
+          {selection && (
+            <label
+              className="bounty-card__select"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <input
+                type="checkbox"
+                checked={selection.selected}
+                onChange={selection.onToggle}
+                aria-label={`Select ${bounty.id} for bulk action`}
+              />
+            </label>
+          )}
           <span
             className={`status-pill status-pill--${bounty.status}`}
             title={statusCopy[bounty.status].label}
